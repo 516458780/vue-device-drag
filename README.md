@@ -1,4 +1,4 @@
-# hello-world
+# device-drag
 
 ## Project setup
 ```

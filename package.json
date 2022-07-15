@@ -1,6 +1,17 @@
 {
-  "name": "hello-world",
+  "name": "device-drag",
   "version": "0.1.0",
+  "description": "整合mouse、touch拖拽",
+  "main": "./dist/index.js",
+  "keywords": ["drag", "touch drag"],
+  "license": "MIT",
+  "files": [
+    "dist/index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/516458780/device-drag"
+  },
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
