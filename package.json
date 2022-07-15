@@ -1,7 +1,7 @@
 {
-  "name": "device-drag",
+  "name": "vue-device-drag",
   "version": "0.1.0",
-  "description": "整合mouse、touch拖拽",
+  "description": "基于vue2.0整合mouse、touch拖拽",
   "main": "./dist/index.js",
   "keywords": ["drag", "touch drag"],
   "license": "MIT",
