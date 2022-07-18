@@ -5,27 +5,137 @@
 基于Vue2，整合了mouse、touch而成的拖拽指令，便于一套代码同时应用于pc端和设备端
 ```
 
-### 开启拖拽
+## 使用方法
 ```
-v-device-drag
+npm install vue-device-drag
+```
+并且在 new Vue 之前，使用代码：
+```
+import DeviceDrag from "vue-device-drag";
+
+Vue.use(DeviceDrag)
 ```
 
 ### 作用于拖拽元素的指令
-|         指令名         |         说明         |
-|:-------------------:|:--------------------:|
-|     device-drag     |  启用拖拽功能，需要拖拽的元素必须有   |
-| device-drag-disable |      动态控制是否允许拖动      |
-|  device-drag-data   | 指定该元素触发拖拽相关指令时，绑定的数据 |
-|  device-drag-start  | 指定元素触发拖拽开始指令时，调用的方法  |
-|   device-drag-end   | 指定元素触发拖拽结束指令时，调用的方法  |
+|         指令名         |         说明         |           指令的绑定值类型           |
+|:-------------------:|:--------------------:|:----------------------------:|
+|     device-drag     |  启用拖拽功能，需要拖拽的元素必须有   |              ×               |
+| device-drag-disable |      动态控制是否允许拖动      |           Boolean            |
+|  device-drag-data   | 指定该元素触发拖拽相关指令时，绑定的数据 | String / Number / Boolean / Object |
+|  device-drag-start  | 指定元素触发拖拽开始指令时，调用的方法  |           Function           |
+|   device-drag-end   | 指定元素触发拖拽结束指令时，调用的方法  |                Function              |
 
 ### 作用于目标元素的指令
-|         指令名         |           说明            |
-|:---------------------:|:-----------------------:|
-|     device-drag     |    启用拖拽功能，需要拖拽的元素必须有    |
-| device-drag-disable |       动态控制是否允许拖动        |
-| device-drag-data |  指定该元素触发拖拽相关指令时，绑定的数据   |
-| device-drag-enter |   指定拖拽元素进入目标元素时，调用的方法   |
-| device-drag-over |  指定拖拽元素在目标元素上移动时，调用的方法  |
-| device-drag-leave |   指定拖拽元素离开目标元素时，调用的方法   |
-| device-drag-drop | 指定拖拽元素在目标元素上结束拖拽时，调用的方法 |
+|         指令名         |           说明            |  指令的绑定值类型   |
+|:-------------------:|:-----------------------:|:---:|
+|     device-drag     |    启用拖拽功能，需要拖拽的元素必须有    |   ×  |
+| device-drag-disable |       动态控制是否允许拖动        |  Boolean   |
+|  device-drag-data   |  指定该元素触发拖拽相关指令时，绑定的数据   |  String / Number / Boolean / Object   |
+|  device-drag-enter  |   指定拖拽元素进入目标元素时，调用的方法   |  Function   |
+|  device-drag-over   |  指定拖拽元素在目标元素上移动时，调用的方法  | Function    |
+|  device-drag-leave  |   指定拖拽元素离开目标元素时，调用的方法   |  Function   |
+|     device-drop     | 指定拖拽元素在目标元素上结束拖拽时，调用的方法 |  Function   |
+
+## 指令参数
+当指令device-drag使用时带有参数，如：
+```
+v-device-drag:test
+```
+
+则只有带有相同参数test的事件指令才会被触发，如：
+```
+v-device-drag-start:test="doSomething"
+
+v-device-drag-end:test="doSomething"
+
+v-device-drag-enter:test="doSomething"
+
+v-device-drag-over:test="doSomething"
+
+v-device-drag-leave:test="doSomething"
+
+v-device-drop:test="doSomething"
+```
+
+
+## 使用示例
+```
+<template>
+  <div id="app">
+    <div
+        v-device-drag-data="{ groupId: 1 }"
+        v-device-drag-enter="dragOver"
+        v-device-drag-over="dragOver"
+        v-device-drag-leave="dragEnd"
+        v-device-drop="drop"
+        :class="['group', 'group1', { 'is-over': overGroupId === 1 }]">
+      <img
+          v-device-drag
+          v-device-drag-end="dragEnd"
+          alt="Vue logo"
+          src="./assets/logo.png">
+    </div>
+    <div
+        v-device-drag-data="{ groupId: 2 }"
+        v-device-drag-enter="dragOver"
+        v-device-drag-over="dragOver"
+        v-device-drag-leave="dragEnd"
+        v-device-drop="drop"
+        :class="['group', 'group2', { 'is-over': overGroupId === 2 }]"
+    ></div>
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: 'App',
+  data() {
+    return {
+      overGroupId: null,
+      group1: [],
+      group2: []
+    }
+  },
+  methods: {
+    dragOver(event) {
+      this.overGroupId = event.targetData.groupId
+    },
+    dragEnd() {
+      this.overGroupId = null
+    },
+    drop(event) {
+      event.target.append(event.dragEl)
+    }
+  }
+}
+</script>
+
+<style>
+#app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.group {
+  width: 300px;
+  height: 300px;
+  border: 1px solid #cccccc;
+  margin: 10px auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  transition: background-color 0.2s linear;
+}
+
+.group.is-over {
+  background-color: aliceblue;
+}
+</style>
+
+```
