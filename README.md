@@ -36,6 +36,19 @@ Vue.use(DeviceDrag)
 |  device-drag-leave  |   指定拖拽元素离开目标元素时，调用的方法   |  Function   |
 |     device-drop     | 指定拖拽元素在目标元素上结束拖拽时，调用的方法 |  Function   |
 
+### 事件类指令调用绑定的方法时，传入的参数中带有以下参数
+|         参数名         |              说明              |  数据类型  |
+|:-------------------:|:----------------------------:|:------:|
+|      eventName      | 若使用指令时，有传入指令参数，则值为指令参数，否则为空  | String |
+|      clientX      |         事件触发时，鼠标的位置          | Number |
+|      clientY      |         事件触发时，鼠标的位置          | Number |
+|      pointEl      | 事件触发时，鼠标所在的元素（不代表一定是事件触发的元素） | Element |
+|      dragEl      |             拖拽元素             | Element |
+|      data      | 拖拽元素使用device-drag-data绑定的数据  | String / Number / Boolean / Object |
+|      target      |             目标元素             | Element |
+|      targetData      |             目标元素使用device-drag-data绑定的数据             | String / Number / Boolean / Object |
+
+
 ## 指令参数
 当指令device-drag使用时带有参数，如：
 ```
@@ -55,6 +68,11 @@ v-device-drag-over:test="doSomething"
 v-device-drag-leave:test="doSomething"
 
 v-device-drop:test="doSomething"
+```
+
+事件指令可通过增加修饰符stop来阻止事件的传递，如：
+```
+v-device-drag-over:test.stop="doSomething"
 ```
 
 

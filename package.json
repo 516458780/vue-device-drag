@@ -1,12 +1,12 @@
 {
   "name": "vue-device-drag",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "description": "基于vue2.0整合mouse、touch拖拽",
-  "main": "./dist/index.js",
+  "main": "./dist/index.common.js",
   "keywords": ["vue", "drag", "touch"],
   "license": "MIT",
   "files": [
-    "dist/index.js"
+    "dist"
   ],
   "repository": {
     "type": "git",
@@ -15,7 +15,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "library": "vue-cli-service build --target lib --name index src/assets/device-drag.js"
   },
   "dependencies": {
     "core-js": "^3.8.3",
