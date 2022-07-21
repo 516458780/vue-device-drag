@@ -70,9 +70,16 @@ v-device-drag-leave:test="doSomething"
 v-device-drop:test="doSomething"
 ```
 
-事件指令可通过增加修饰符stop来阻止事件的传递，如：
+事件指令可通过增加修饰符stop来阻止事件的冒泡传递，如：
 ```
 v-device-drag-over:test.stop="doSomething"
+```
+
+### 判断是否正在拖拽过程中
+```
+if (this.$deviceDrag) {
+    // 拖拽过程中
+}
 ```
 
 
