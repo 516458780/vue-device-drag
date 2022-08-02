@@ -60,78 +60,76 @@ const isNoValue = (value) => {
 }
 
 const proxy = new Proxy(
-  {
-    eventName: null,
-    clientX: null,
-    clientY: null,
-    pointEl: null,
-    dragEl: null,
-    data: null
-  },
-  {
-    get(target, key) {
-      return target[key]
+    {
+      eventName: null,
+      clientX: null,
+      clientY: null,
+      pointEl: null,
+      dragEl: null,
+      data: null
     },
-    set(target, key, value) {
-      if (key === 'pointEl') {
-        dragStartListener.forEach((item) => {
-          item(value, target[key])
-        })
+    {
+      get(target, key) {
+        return target[key]
+      },
+      set(target, key, value) {
+        if (key === 'pointEl') {
+          dragStartListener.forEach((item) => {
+            item(value, target[key])
+          })
 
-        dragEnterListener.forEach((item) => {
-          item(value, target[key])
-        })
+          dragEnterListener.forEach((item) => {
+            item(value, target[key])
+          })
 
-        dragOverListener.forEach((item) => {
-          item(value, target[key])
-        })
+          dragOverListener.forEach((item) => {
+            item(value, target[key])
+          })
 
-        dragLeaveListener.forEach((item) => {
-          item(value, target[key])
-        })
+          dragLeaveListener.forEach((item) => {
+            item(value, target[key])
+          })
 
-        dragEndListener.forEach((item) => {
-          item(value, target[key])
-        })
+          dragEndListener.forEach((item) => {
+            item(value, target[key])
+          })
 
-        dropListener.forEach((item) => {
-          item(value, target[key])
-        })
+          dropListener.forEach((item) => {
+            item(value, target[key])
+          })
+        }
+        target[key] = value
+        return true
       }
-      target[key] = value
-      return true
     }
-  }
 )
 
 const stateDataProxy = new Proxy(
-  { isDragging: false },
-  {
-    set(target, propKey, value, receiver) {
-      value = String(value)
-      if (value.indexOf(setDataTip) !== 0) {
-        return true
-      }
-      value = value.replace(setDataTip, '')
+    { isDragging: false },
+    {
+      set(target, propKey, value, receiver) {
+        value = String(value)
+        if (value.indexOf(setDataTip) !== 0) {
+          return true
+        }
+        value = value.replace(setDataTip, '')
 
-      if (!['true', 'false'].includes(value)) {
+        if (!['true', 'false'].includes(value)) {
+          return true
+        }
+        Reflect.set(target, propKey, JSON.parse(value), receiver)
         return true
       }
-      Reflect.set(target, propKey, JSON.parse(value), receiver)
-      return true
     }
-  }
 )
 
-export default function (Vue) {
+export default function(Vue) {
   Vue.prototype.$deviceDrag = Vue.observable(stateDataProxy)
 
   Vue.directive(`device-drag`, {
     bind(el, binding) {
       const eventName = isNoValue(binding.arg) ? null : binding.arg
       const dragStart = (event) => {
-        event.preventDefault()
-
         const disable = el.getAttribute(disableTip) === 'true'
         if (disable) {
           return
@@ -140,6 +138,7 @@ export default function (Vue) {
         if (!checkIsOver(el, event.target, stopDragStartPropagation)) {
           return
         }
+        event.preventDefault()
 
         Vue.prototype.$deviceDrag.isDragging = `${setDataTip}true`
 
@@ -470,4 +469,3 @@ export default function (Vue) {
     }
   })
 }
-
