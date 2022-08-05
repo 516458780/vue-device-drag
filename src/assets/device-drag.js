@@ -14,12 +14,12 @@ const stopDropPropagation = `stop_device_drop_propagation`
 const dragData = {}
 
 // 事件订阅列表
-const dragStartListener = []
-const dragEnterListener = []
-const dragOverListener = []
-const dragLeaveListener = []
-const dragEndListener = []
-const dropListener = []
+let dragStartListener = []
+let dragEnterListener = []
+let dragOverListener = []
+let dragLeaveListener = []
+let dragEndListener = []
+let dropListener = []
 
 // 检查鼠标所在元素触发的事件能否传递到目标元素上
 const checkIsOver = (el, pointEl, stopTip) => {
@@ -59,6 +59,12 @@ const isNoValue = (value) => {
   return [undefined, null, ''].includes(value)
 }
 
+const filteringListener = (listener) => {
+  return listener.filter((item) => {
+    return document.body.contains(item.el)
+  })
+}
+
 const proxy = new Proxy(
     {
       eventName: null,
@@ -74,29 +80,32 @@ const proxy = new Proxy(
       },
       set(target, key, value) {
         if (key === 'pointEl') {
-          dragStartListener.forEach((item) => {
-            item(value, target[key])
-          })
+          const body = document?.body
+          const oldPointEl = target[key]
 
-          dragEnterListener.forEach((item) => {
-            item(value, target[key])
-          })
+          if (body) {
+            // 过滤掉已经不需要的监听
+            dragStartListener = filteringListener(dragStartListener)
+            dragEnterListener = filteringListener(dragEnterListener)
+            dragOverListener = filteringListener(dragOverListener)
+            dragLeaveListener = filteringListener(dragLeaveListener)
+            dragEndListener = filteringListener(dragEndListener)
+            dropListener = filteringListener(dropListener)
 
-          dragOverListener.forEach((item) => {
-            item(value, target[key])
-          })
-
-          dragLeaveListener.forEach((item) => {
-            item(value, target[key])
-          })
-
-          dragEndListener.forEach((item) => {
-            item(value, target[key])
-          })
-
-          dropListener.forEach((item) => {
-            item(value, target[key])
-          })
+            // 执行
+            ;[
+              dragStartListener,
+              dragEnterListener,
+              dragOverListener,
+              dragLeaveListener,
+              dragEndListener,
+              dropListener
+            ].forEach((listener) => {
+              listener.forEach((item) => {
+                item.handler(value, oldPointEl)
+              })
+            })
+          }
         }
         target[key] = value
         return true
@@ -263,7 +272,7 @@ export default function(Vue) {
           return
         }
 
-        if (!oldPointEl && pointEl) {
+        if (!oldPointEl && el.contains(pointEl)) {
           const params = {
             ...proxy,
             target: el,
@@ -275,7 +284,10 @@ export default function(Vue) {
       }
 
       if (value && value instanceof Function) {
-        dragStartListener.push(watch)
+        dragStartListener.push({
+          el,
+          handler: watch
+        })
       }
     }
   })
@@ -315,7 +327,10 @@ export default function(Vue) {
       }
 
       if (value && value instanceof Function) {
-        dragEnterListener.push(watch)
+        dragEnterListener.push({
+          el,
+          handler: watch
+        })
       }
     }
   })
@@ -347,7 +362,10 @@ export default function(Vue) {
       }
 
       if (value && value instanceof Function) {
-        dragOverListener.push(watch)
+        dragOverListener.push({
+          el,
+          handler: watch
+        })
       }
     }
   })
@@ -387,7 +405,10 @@ export default function(Vue) {
       }
 
       if (value && value instanceof Function) {
-        dragLeaveListener.push(watch)
+        dragLeaveListener.push({
+          el,
+          handler: watch
+        })
       }
     }
   })
@@ -423,7 +444,10 @@ export default function(Vue) {
       }
 
       if (value && value instanceof Function) {
-        dragEndListener.push(watch)
+        dragEndListener.push({
+          el,
+          handler: watch
+        })
       }
     }
   })
@@ -464,7 +488,10 @@ export default function(Vue) {
       }
 
       if (value && value instanceof Function) {
-        dropListener.push(watch)
+        dropListener.push({
+          el,
+          handler: watch
+        })
       }
     }
   })
