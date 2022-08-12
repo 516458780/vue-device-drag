@@ -60,9 +60,12 @@ const isNoValue = (value) => {
 }
 
 const filteringListener = (listener) => {
-  return listener.filter((item) => {
-    return document.body.contains(item.el)
-  })
+  if (document?.body) {
+    return listener.filter((item) => {
+      return document.body.contains(item.el)
+    })
+  }
+  return listener
 }
 
 const proxy = new Proxy(
@@ -79,33 +82,38 @@ const proxy = new Proxy(
         return target[key]
       },
       set(target, key, value) {
+        // 过滤掉已经不需要的监听
+        dragStartListener = filteringListener(dragStartListener)
+        dragEnterListener = filteringListener(dragEnterListener)
+        dragOverListener = filteringListener(dragOverListener)
+        dragLeaveListener = filteringListener(dragLeaveListener)
+        dragEndListener = filteringListener(dragEndListener)
+        dropListener = filteringListener(dropListener)
+
+        if (['clientX', 'clientY'].includes(key)) {
+          // 执行
+          [dragOverListener].forEach((listener) => {
+            listener.forEach((item) => {
+              item.handler(target.pointEl)
+            })
+          })
+        }
+
         if (key === 'pointEl') {
-          const body = document?.body
           const oldPointEl = target[key]
 
-          if (body) {
-            // 过滤掉已经不需要的监听
-            dragStartListener = filteringListener(dragStartListener)
-            dragEnterListener = filteringListener(dragEnterListener)
-            dragOverListener = filteringListener(dragOverListener)
-            dragLeaveListener = filteringListener(dragLeaveListener)
-            dragEndListener = filteringListener(dragEndListener)
-            dropListener = filteringListener(dropListener)
-
-            // 执行
-            ;[
-              dragStartListener,
-              dragEnterListener,
-              dragOverListener,
-              dragLeaveListener,
-              dragEndListener,
-              dropListener
-            ].forEach((listener) => {
-              listener.forEach((item) => {
-                item.handler(value, oldPointEl)
-              })
+              // 执行
+          ;[
+            dragStartListener,
+            dragEnterListener,
+            dragLeaveListener,
+            dragEndListener,
+            dropListener
+          ].forEach((listener) => {
+            listener.forEach((item) => {
+              item.handler(value, oldPointEl)
             })
-          }
+          })
         }
         target[key] = value
         return true
@@ -147,7 +155,6 @@ export default function(Vue) {
         if (!checkIsOver(el, event.target, stopDragStartPropagation)) {
           return
         }
-        event.preventDefault()
 
         Vue.prototype.$deviceDrag.isDragging = `${setDataTip}true`
 
@@ -177,16 +184,19 @@ export default function(Vue) {
         proxy.eventName = eventName
         proxy.clientX = startX
         proxy.clientY = startY
-
-        // 不需要清空数据
-        proxy.data = dragData[el.dragDataSymbol]
+        proxy.data = dragData[el.dragDataSymbol] || null
 
         proxy.dragEl = el
-        proxy.pointEl = document.elementFromPoint(startX, startY)
+        // proxy.pointEl = document.elementFromPoint(startX, startY)
         proxy.target = el
-        proxy.targetData = dragData[el.dragDataSymbol]
+        proxy.targetData = dragData[el.dragDataSymbol] || null
+
+        // 不需要清空数据
 
         const dragMove = (e) => {
+          event.preventDefault()
+          e.preventDefault()
+
           requestAnimationFrame(() => {
             const moveEvent = isTouch ? e.touches[0] : e
             proxy.clientX = moveEvent.clientX
@@ -198,10 +208,14 @@ export default function(Vue) {
             eleCopy.style.zIndex = '9999'
             eleCopy.style.transform = `translate(${x}px, ${y}px)`
 
-            proxy.pointEl = document.elementFromPoint(
+            const pointEl = document.elementFromPoint(
                 proxy.clientX,
                 proxy.clientY
             )
+
+            if (pointEl !== proxy.pointEl) {
+              proxy.pointEl = pointEl
+            }
           })
         }
 
@@ -219,8 +233,8 @@ export default function(Vue) {
           proxy.pointEl = null
         }
 
-        body.addEventListener(moveEventType, dragMove)
-        body.addEventListener(upEventType, dragEnd)
+        body.addEventListener(moveEventType, dragMove, { passive: false })
+        body.addEventListener(upEventType, dragEnd, { passive: false })
       }
 
       el.addEventListener('mousedown', dragStart)
@@ -276,7 +290,7 @@ export default function(Vue) {
           const params = {
             ...proxy,
             target: el,
-            targetData: dragData[el.dragDataSymbol]
+            targetData: dragData[el.dragDataSymbol] || null
           }
           // console.log('start', el)
           value(params)
@@ -319,7 +333,7 @@ export default function(Vue) {
           const params = {
             ...proxy,
             target: el,
-            targetData: dragData[el.dragDataSymbol]
+            targetData: dragData[el.dragDataSymbol] || null
           }
           // console.log('enter', el)
           value(params)
@@ -355,7 +369,7 @@ export default function(Vue) {
           const params = {
             ...proxy,
             target: el,
-            targetData: dragData[el.dragDataSymbol]
+            targetData: dragData[el.dragDataSymbol] || null
           }
           value(params)
         }
@@ -397,7 +411,7 @@ export default function(Vue) {
           const params = {
             ...proxy,
             target: el,
-            targetData: dragData[el.dragDataSymbol]
+            targetData: dragData[el.dragDataSymbol] || null
           }
           // console.log('leave', el)
           value(params)
@@ -437,7 +451,7 @@ export default function(Vue) {
           const params = {
             ...proxy,
             target: el,
-            targetData: dragData[el.dragDataSymbol]
+            targetData: dragData[el.dragDataSymbol] || null
           }
           value(params)
         }
@@ -481,7 +495,7 @@ export default function(Vue) {
           const params = {
             ...proxy,
             target: el,
-            targetData: dragData[el.dragDataSymbol]
+            targetData: dragData[el.dragDataSymbol] || null
           }
           value(params)
         }
