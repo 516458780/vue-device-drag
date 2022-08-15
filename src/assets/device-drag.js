@@ -122,19 +122,26 @@ const proxy = new Proxy(
 )
 
 const stateDataProxy = new Proxy(
-    { isDragging: false },
     {
-      set(target, propKey, value, receiver) {
+      isDragging: false
+    },
+    {
+      set(target, propKey, value) {
         value = String(value)
         if (value.indexOf(setDataTip) !== 0) {
           return true
         }
         value = value.replace(setDataTip, '')
 
-        if (!['true', 'false'].includes(value)) {
-          return true
+        if (['isDragging'].includes(propKey)) {
+          if (!['true', 'false'].includes(value)) {
+            return true
+          }
+          Reflect.set(target, propKey, JSON.parse(value))
+        } else {
+          Reflect.set(target, propKey, value)
         }
-        Reflect.set(target, propKey, JSON.parse(value), receiver)
+
         return true
       }
     }
@@ -170,7 +177,7 @@ export default function(Vue) {
         const startX = startEvent.clientX
         const startY = startEvent.clientY
 
-        const scale = 1.2
+        const scale = 1.1
         const body = document.body
         const eleRect = el.getBoundingClientRect()
         const eleCopy = el.cloneNode(true)
@@ -186,8 +193,16 @@ export default function(Vue) {
         eleCopy.style.zIndex = '9999'
         eleCopy.style.transformorigin = 'center'
 
+        let delayTime = 0
+        if (isTouch) {
+          console.log('touch')
+          delayTime = el.deviceDragTouchDelay || el.deviceDragDelay || 0
+        } else {
+          console.log('mouse')
+          delayTime = el.deviceDragMouseDelay || el.deviceDragDelay || 0
+        }
+
         const startTime = new Date().getTime()
-        const delayTime = el.deviceDragDelay || 0
         const delayTimeout = setTimeout(() => {
           eleCopy.style.transform = `translate(0px, 0px) scale(${scale})`
           body.appendChild(eleCopy)
@@ -306,6 +321,24 @@ export default function(Vue) {
     },
     update(el, binding) {
       el.deviceDragDelay = binding.value
+    }
+  })
+
+  Vue.directive(`device-drag-mouse-delay`, {
+    bind(el, binding) {
+      el.deviceDragMouseDelay = binding.value
+    },
+    update(el, binding) {
+      el.deviceDragMouseDelay = binding.value
+    }
+  })
+
+  Vue.directive(`device-drag-touch-delay`, {
+    bind(el, binding) {
+      el.deviceDragTouchDelay = binding.value
+    },
+    update(el, binding) {
+      el.deviceDragTouchDelay = binding.value
     }
   })
 
