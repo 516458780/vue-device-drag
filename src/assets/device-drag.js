@@ -60,7 +60,7 @@ const isNoValue = (value) => {
 }
 
 const filteringListener = (listener) => {
-  if (document?.body) {
+  if (document && document?.body) {
     return listener.filter((item) => {
       return document.body.contains(item.el)
     })
