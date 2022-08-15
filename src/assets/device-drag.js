@@ -195,10 +195,10 @@ export default function(Vue) {
 
         let delayTime = 0
         if (isTouch) {
-          console.log('touch')
+          // console.log('touch')
           delayTime = el.deviceDragTouchDelay || el.deviceDragDelay || 0
         } else {
-          console.log('mouse')
+          // console.log('mouse')
           delayTime = el.deviceDragMouseDelay || el.deviceDragDelay || 0
         }
 
