@@ -17,9 +17,10 @@ Vue.use(DeviceDrag)
 ```
 
 ### 作用于拖拽元素的指令
-|         指令名         |         说明         |           指令的绑定值类型           |
+|         指令名         |          说明          |           指令的绑定值类型           |
 |:-------------------:|:--------------------:|:----------------------------:|
 |     device-drag     |  启用拖拽功能，需要拖拽的元素必须有   |              ×               |
+|     device-drag-delay     |     延迟拖拽的时间（ms）      |              Number               |
 | device-drag-disable |      动态控制是否允许拖动      |           Boolean            |
 |  device-drag-data   | 指定该元素触发拖拽相关指令时，绑定的数据 | String / Number / Boolean / Object |
 |  device-drag-start  | 指定元素触发拖拽开始指令时，调用的方法  |           Function           |

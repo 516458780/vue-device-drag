@@ -140,6 +140,11 @@ const stateDataProxy = new Proxy(
     }
 )
 
+// 方法定义 lat,lng
+const getDistance = (x1, y1, x2, y2) => {
+  return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+}
+
 export default function(Vue) {
   Vue.prototype.$deviceDrag = Vue.observable(stateDataProxy)
 
@@ -156,8 +161,6 @@ export default function(Vue) {
           return
         }
 
-        Vue.prototype.$deviceDrag.isDragging = `${setDataTip}true`
-
         el.className = `${el.className} ${draggingElClass}`
 
         const isTouch = event.type.includes('touch')
@@ -167,6 +170,7 @@ export default function(Vue) {
         const startX = startEvent.clientX
         const startY = startEvent.clientY
 
+        const scale = 1.2
         const body = document.body
         const eleRect = el.getBoundingClientRect()
         const eleCopy = el.cloneNode(true)
@@ -179,39 +183,81 @@ export default function(Vue) {
         eleCopy.style.height = `${eleRect.height}px`
         eleCopy.style.opacity = `0.6`
         eleCopy.style.pointerEvents = `none`
-        body.appendChild(eleCopy)
+        eleCopy.style.zIndex = '9999'
+        eleCopy.style.transformorigin = 'center'
 
-        proxy.eventName = eventName
-        proxy.clientX = startX
-        proxy.clientY = startY
-        proxy.data = dragData[el.dragDataSymbol] || null
+        const startTime = new Date().getTime()
+        const delayTime = el.deviceDragDelay || 0
+        const delayTimeout = setTimeout(() => {
+          eleCopy.style.transform = `translate(0px, 0px) scale(${scale})`
+          body.appendChild(eleCopy)
 
-        proxy.dragEl = el
-        // proxy.pointEl = document.elementFromPoint(startX, startY)
-        proxy.target = el
-        proxy.targetData = dragData[el.dragDataSymbol] || null
+          proxy.eventName = eventName
+          proxy.clientX = startX
+          proxy.clientY = startY
+          proxy.data = dragData[el.dragDataSymbol] || null
 
-        // 不需要清空数据
+          proxy.dragEl = el
+          // proxy.pointEl = document.elementFromPoint(startX, startY)
+          proxy.target = el
+          proxy.targetData = dragData[el.dragDataSymbol] || null
+
+          Vue.prototype.$deviceDrag.isDragging = `${setDataTip}true`
+        }, delayTime)
+        let cancel = false
+        const cancelDrag = () => {
+          cancel = true
+          clearTimeout(delayTimeout)
+        }
 
         const dragMove = (e) => {
+          if (cancel) {
+            return
+          }
+
+          const moveEvent = isTouch ? e.touches[0] : e
+
+          const pointEl = document.elementFromPoint(
+              moveEvent.clientX,
+              moveEvent.clientY
+          )
+
+          if (new Date().getTime() < startTime + delayTime) {
+            // console.log('时间没到')
+
+            const distance = getDistance(
+                moveEvent.clientX,
+                moveEvent.clientY,
+                startX,
+                startY
+            )
+
+            if (distance > 6) {
+              // 移动距离过大
+              // console.log('移动距离过大')
+              cancelDrag()
+              return
+            }
+
+            if (!el.contains(pointEl)) {
+              // 移出了元素外面
+              // console.log('移出了元素外面')
+              cancelDrag()
+              return
+            }
+            return
+          }
+
           event.preventDefault()
           e.preventDefault()
-
           requestAnimationFrame(() => {
-            const moveEvent = isTouch ? e.touches[0] : e
             proxy.clientX = moveEvent.clientX
             proxy.clientY = moveEvent.clientY
 
             const x = proxy.clientX - startX
             const y = proxy.clientY - startY
 
-            eleCopy.style.zIndex = '9999'
-            eleCopy.style.transform = `translate(${x}px, ${y}px)`
-
-            const pointEl = document.elementFromPoint(
-                proxy.clientX,
-                proxy.clientY
-            )
+            eleCopy.style.transform = `translate(${x}px, ${y}px) scale(${scale})`
 
             if (pointEl !== proxy.pointEl) {
               proxy.pointEl = pointEl
@@ -220,6 +266,7 @@ export default function(Vue) {
         }
 
         const dragEnd = () => {
+          cancelDrag()
           body.removeEventListener(moveEventType, dragMove)
           body.removeEventListener(upEventType, dragEnd)
           eleCopy.remove()
@@ -237,8 +284,8 @@ export default function(Vue) {
         body.addEventListener(upEventType, dragEnd, { passive: false })
       }
 
-      el.addEventListener('mousedown', dragStart)
-      el.addEventListener('touchstart', dragStart)
+      el.addEventListener('mousedown', dragStart, { passive: false })
+      el.addEventListener('touchstart', dragStart, { passive: false })
     }
   })
 
@@ -250,6 +297,15 @@ export default function(Vue) {
     update(el, binding) {
       const value = binding.value
       el.setAttribute(disableTip, value)
+    }
+  })
+
+  Vue.directive(`device-drag-delay`, {
+    bind(el, binding) {
+      el.deviceDragDelay = binding.value
+    },
+    update(el, binding) {
+      el.deviceDragDelay = binding.value
     }
   })
 
