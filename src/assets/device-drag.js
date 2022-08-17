@@ -177,7 +177,7 @@ export default function(Vue) {
         const startX = startEvent.clientX
         const startY = startEvent.clientY
 
-        const scale = 1.1
+        const scale = isTouch ? 1.1 : 1
         const body = document.body
         const eleRect = el.getBoundingClientRect()
         const eleCopy = el.cloneNode(true)

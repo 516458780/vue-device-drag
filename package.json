@@ -1,6 +1,6 @@
 {
   "name": "vue-device-drag",
-  "version": "0.1.14",
+  "version": "0.1.16",
   "description": "基于vue2.0整合mouse、touch拖拽",
   "main": "./dist/index.common.js",
   "keywords": ["vue", "drag", "touch"],
