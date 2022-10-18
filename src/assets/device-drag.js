@@ -60,7 +60,7 @@ const isNoValue = (value) => {
 }
 
 const filteringListener = (listener) => {
-  if (document && document?.body) {
+  if (document && document.body) {
     return listener.filter((item) => {
       return document.body.contains(item.el)
     })
@@ -159,6 +159,10 @@ export default function(Vue) {
     bind(el, binding) {
       const eventName = isNoValue(binding.arg) ? null : binding.arg
       const dragStart = (event) => {
+        if (!event.isTrusted) {
+          return
+        }
+
         const disable = el.getAttribute(disableTip) === 'true'
         if (disable) {
           return
@@ -188,7 +192,7 @@ export default function(Vue) {
         eleCopy.style.left = `${eleRect.left}px`
         eleCopy.style.width = `${eleRect.width}px`
         eleCopy.style.height = `${eleRect.height}px`
-        eleCopy.style.opacity = `0.6`
+        eleCopy.style.opacity = `0.7`
         eleCopy.style.pointerEvents = `none`
         eleCopy.style.zIndex = '9999'
         eleCopy.style.transformorigin = 'center'
