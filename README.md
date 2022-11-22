@@ -2,18 +2,28 @@
 
 ## 简介
 ```
-基于Vue2，整合了mouse、touch而成的拖拽指令，便于一套代码同时应用于pc端和设备端
+基于Vue2、3，整合了mouse、touch而成的拖拽指令，便于一套代码同时应用于pc端和设备端
 ```
 
 ## 使用方法
 ```
 npm install vue-device-drag
 ```
-并且在 new Vue 之前，使用代码：
+vue2：
 ```
 import DeviceDrag from "vue-device-drag";
 
 Vue.use(DeviceDrag)
+```
+
+
+vue3：
+```
+import { createApp } from 'vue'
+import App from './App.vue'
+import { vue3 as DeviceDrag } from "vue-device-drag";
+
+createApp(App).use(DeviceDrag).mount("#app");
 ```
 
 ### 作用于拖拽元素的指令

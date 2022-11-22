@@ -1,38 +1,33 @@
 <template>
-  <div id="app">
-    <div
-        v-device-drag-data="{ groupId: 1 }"
-        v-device-drag-enter="dragOver"
-        v-device-drag-over="dragOver"
-        v-device-drag-leave="dragEnd"
-        v-device-drop="drop"
-        :class="['group', 'group1', { 'is-over': overGroupId === 1 }]">
-      <img
-          v-device-drag
-          v-device-drag-end="dragEnd"
-          alt="Vue logo"
-          src="./assets/logo.png">
-    </div>
-    <div
-        v-device-drag-data="{ groupId: 2 }"
-        v-device-drag-enter="dragOver"
-        v-device-drag-over="dragOver"
-        v-device-drag-leave="dragEnd"
-        v-device-drop="drop"
-        :class="['group', 'group2', { 'is-over': overGroupId === 2 }]"
-    ></div>
+  <div
+      v-device-drag-data="{ groupId: 1 }"
+      v-device-drag-enter="dragOver"
+      v-device-drag-over="dragOver"
+      v-device-drag-leave="dragEnd"
+      v-device-drop="drop"
+      :class="['group', 'group1', { 'is-over': overGroupId === 1 }]">
+    <img
+        v-device-drag
+        v-device-drag-end="dragEnd"
+        alt="Vue logo"
+        src="./assets/vue.svg">
   </div>
+  <div
+      v-device-drag-data="{ groupId: 2 }"
+      v-device-drag-enter="dragOver"
+      v-device-drag-over="dragOver"
+      v-device-drag-leave="dragEnd"
+      v-device-drop="drop"
+      :class="['group', 'group2', { 'is-over': overGroupId === 2 }]"
+  ></div>
 </template>
 
 <script>
-
 export default {
   name: 'App',
   data() {
     return {
-      overGroupId: null,
-      group1: [],
-      group2: []
+      overGroupId: null
     }
   },
   methods: {

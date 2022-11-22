@@ -1,52 +1,32 @@
 {
   "name": "vue-device-drag",
-  "version": "0.1.18",
-  "description": "基于vue2.0整合mouse、touch拖拽",
-  "main": "./dist/index.common.js",
-  "keywords": ["vue", "drag", "touch"],
+  "version": "0.1.19",
+  "description": "基于vue2、3整合mouse、touch拖拽",
+  "main": "./dist/index.js",
+  "keywords": [
+    "vue",
+    "drag",
+    "touch"
+  ],
   "license": "MIT",
   "files": [
     "dist"
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/516458780/device-drag"
+    "url": "git://github.com/516458780/vue-device-drag"
   },
+  "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "library": "vue-cli-service build --target lib --name index src/assets/device-drag.js"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "core-js": "^3.8.3",
-    "vue": "^2.6.14"
+    "vue": "^3.2.41"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.16",
-    "@babel/eslint-parser": "^7.12.16",
-    "@vue/cli-plugin-babel": "~5.0.0",
-    "@vue/cli-plugin-eslint": "~5.0.0",
-    "@vue/cli-service": "~5.0.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^8.0.3",
-    "vue-template-compiler": "^2.6.14"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {},
-    "rules": {}
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+    "@vitejs/plugin-vue": "^3.2.0",
+    "vite": "^3.2.3"
+  }
 }
